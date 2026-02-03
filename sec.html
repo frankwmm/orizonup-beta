@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORIZONUP - Asistente Legal IA</title>
+    <!-- Iconos -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* --- ESTILOS MODERNOS TIPO CHAT --- */
+        :root {
+            --bg-color: #343541; /* Color fondo ChatGPT */
+            --chat-bg: #444654;
+            --user-msg-bg: #343541;
+            --bot-msg-bg: #444654;
+            --accent: #10a37f; /* Verde OpenAI */
+            --text: #ececf1;
+            --input-bg: #40414f;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Cabecera */
+        header {
+            background: #202123;
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #555;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 100;
+        }
+        header h1 { margin: 0; font-size: 1.2rem; }
+        header span { font-size: 0.8rem; color: #aaa; }
+
+        /* Área del Chat */
+        #chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 80px 20px 100px 20px; /* Espacio para header e input */
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scroll-behavior: smooth;
+        }
+
+        /* Burbujas de Mensaje */
+        .message {
+            display: flex;
+            gap: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .message.bot {
+            background: transparent; 
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .bot .avatar { background: var(--accent); color: white; }
+        .user .avatar { background: #5c5c8a; color: white; }
+
+        .content {
+            padding: 10px 15px;
+            border-radius: 8px;
+            line-height: 1.6;
+            background: var(--chat-bg);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+            max-width: 80%;
+        }
+        
+        .user .content {
+            background: #19c37d; /* Verde usuario */
+            color: #fff;
+        }
+
+        /* Input Area */
+        #input-area {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: var(--bg-color);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            border-top: 1px solid #555;
+        }
+
+        .input-wrapper {
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px 50px 15px 15px;
+            border-radius: 12px;
+            border: 1px solid #555;
+            background: var(--input-bg);
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            box-sizing: border-box; /* Importante para que no se salga */
+        }
+        
+        input:focus { border-color: var(--accent); }
+
+        #send-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        #send-btn:hover { color: var(--accent); }
+
+        /* Estilo Documento (La Minuta) */
+        .doc-paper {
+            background: #fff;
+            color: #000;
+            padding: 30px;
+            font-family: 'Times New Roman', serif;
+            font-size: 0.95rem;
+            border: 1px solid #ccc;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+        }
+
+        .typing-indicator { font-style: italic; color: #888; font-size: 0.9rem; }
+        
+        .hidden { display: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1><i class="fas fa-robot"></i> ORIZONUP AI</h1>
+        <span>Asistente de Formalización Inteligente</span>
+    </header>
+
+    <div id="chat-container">
+        <!-- Los mensajes se agregarán aquí dinámicamente -->
+    </div>
+
+    <div id="input-area">
+        <div class="input-wrapper">
+            <input type="text" id="user-input" placeholder="Escribe tu respuesta aquí..." autocomplete="off">
+            <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- Script de Lógica -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        // CONFIGURACIÓN API (Igual que tu ejemplo)
+    const API_KEY = 'AIzaSyD754-tFbw1yTXdv8pkIya3cEFxWed52oY'; // NOTA: Usando la Key de tu ejemplo.
+    const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + API_KEY;
+
+        // ESTADO DE LA CONVERSACIÓN
+        let step = 0;
+        let userData = {
+            nombre: '',
+            empresa: '',
+            socios: '',
+            capital: '',
+            descripcion: ''
+        };
+
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+
+        // INICIO
+        window.onload = () => {
+            addBotMessage("¡Hola! Soy OrizonBot 🤖. Estoy aquí para ayudarte a formalizar tu empresa sin complicaciones.");
+            setTimeout(() => {
+                addBotMessage("Para comenzar el diagnóstico y redactar tu minuta, necesito conocerte. ¿Cuál es tu nombre completo?");
+            }, 800);
+        };
+
+        // EVENTOS
+        sendBtn.addEventListener('click', handleUserResponse);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleUserResponse();
+        });
+
+        function handleUserResponse() {
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            // 1. Mostrar mensaje del usuario
+            addUserMessage(text);
+            userInput.value = '';
+            
+            // 2. Lógica de Pasos (State Machine)
+            processStep(text);
+        }
+
+        function processStep(text) {
+            showTyping(); // Efecto de "Escribiendo..."
+
+            setTimeout(() => {
+                hideTyping();
+                
+                switch(step) {
+                    case 0: // Guardar Nombre
+                        userData.nombre = text;
+                        addBotMessage(`Un gusto, ${text}. ¿Qué nombre tienes pensado para tu empresa? (Ej: Bodega El Sol)`);
+                        step++;
+                        break;
+                    
+                    case 1: // Guardar Empresa
+                        userData.empresa = text;
+                        addBotMessage(`¡Suena bien "${text}"! Ahora, ¿cuántos socios serán en total? (Incluyéndote a ti)`);
+                        step++;
+                        break;
+
+                    case 2: // Guardar Socios
+                        // Validación simple
+                        if (isNaN(text) || parseInt(text) < 1) {
+                            addBotMessage("Por favor ingresa un número válido de socios (mínimo 1).");
+                            return;
+                        }
+                        userData.socios = text;
+                        addBotMessage("Entendido. ¿Cuál es el capital inicial aproximado en soles que van a invertir? (Ej: 5000)");
+                        step++;
+                        break;
+
+                    case 3: // Guardar Capital
+                         if (isNaN(text)) {
+                            addBotMessage("Por favor ingresa solo números para el capital.");
+                            return;
+                        }
+                        userData.capital = text;
+                        addBotMessage("Última pregunta clave: Describe brevemente a qué se dedicará el negocio. (Esto servirá para que la IA redacte tu Objeto Social legalmente).");
+                        step++;
+                        break;
+
+                    case 4: // Guardar Descripción y LLAMAR API
+                        userData.descripcion = text;
+                        addBotMessage("¡Perfecto! Tengo toda la información. 🧠");
+                        addBotMessage("Analizando normativa legal peruana (Ley General de Sociedades)... Dame unos segundos.");
+                        
+                        // LLAMADA A LA IA
+                        callAI();
+                        step++;
+                        break;
+                    
+                    case 5:
+                        addBotMessage("El proceso ha finalizado. Si deseas reiniciar, recarga la página.");
+                        break;
+                }
+            }, 600 + Math.random() * 500); // Retraso "humano" aleatorio
+        }
+
+        // FUNCIÓN PARA LLAMAR A GEMINI (Tu lógica adaptada)
+        async function callAI() {
+            showTyping();
+
+            // Prompt Engineering para JSON
+            const promptText = `
+                Actúa como un abogado experto en derecho corporativo en Perú.
+                Usuario: ${userData.nombre}
+                Empresa: ${userData.empresa}
+                Socios: ${userData.socios}
+                Capital: S/ ${userData.capital}
+                Actividad: ${userData.descripcion}
+
+                Analiza y genera un JSON con:
+                1. "tipo": Recomienda EIRL (si es 1 socio) o SAC (si son 2+).
+                2. "regimen": Recomienda Nuevo RUS (si capital < 5000 y venta directa) o MYPE Tributario.
+                3. "analisis": Breve explicación de 2 líneas dirigida al usuario de por qué elegiste eso.
+                4. "objeto_social": Redacta un párrafo formal jurídico describiendo las actividades para la Minuta.
+
+                Formato JSON puro:
+                { "tipo": "...", "regimen": "...", "analisis": "...", "objeto_social": "..." }
+            `;
+
+            const body = {
+                contents: [{ parts: [{ text: promptText }] }]
+            };
+
+            try {
+                const response = await axios.post(API_URL, body, {
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const rawText = response.data.candidates[0].content.parts[0].text;
+                // Limpieza del JSON (Tu script)
+                let cleanedText = rawText.trim().replace(/```json|```/g, '').trim();
+                const data = JSON.parse(cleanedText);
+
+                hideTyping();
+
+                // RESPUESTA DEL BOT
+                addBotMessage(`✅ **Análisis Completado:**\n\n${data.analisis}\n\nTe recomiendo constituirte como **${data.tipo}** bajo el **${data.regimen}**.`);
+                
+                setTimeout(() => {
+                    renderDocument(data);
+                }, 1500);
+
+            } catch (error) {
+                console.error(error);
+                hideTyping();
+                addBotMessage("⚠️ Hubo un error conectando con el cerebro legal. Intenta de nuevo.");
+                step = 4; // Regresar paso para reintentar
+            }
+        }
+
+        function renderDocument(data) {
+            // Fecha actual
+            const fecha = new Date().toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' });
+            
+            // Determinar siglas
+            let siglas = data.tipo.includes("EIRL") ? "E.I.R.L." : "S.A.C.";
+
+            const docHTML = `
+                <div class="doc-paper">
+                    <h3 style="text-align:center; margin-top:0;">MINUTA DE CONSTITUCIÓN</h3>
+                    <p><strong>SEÑOR NOTARIO:</strong><br>
+                    SÍRVASE EXTENDER EN SU REGISTRO DE ESCRITURAS PÚBLICAS, LA CONSTITUCIÓN DE LA EMPRESA <strong>"${userData.empresa.toUpperCase()} ${siglas}"</strong>.</p>
+                    
+                    <p><strong>OTORGANTES:</strong><br>
+                    ${userData.nombre.toUpperCase()}, PERUANO, CON DNI [___], 
+                    ${parseInt(userData.socios) > 1 ? `Y OTROS ${parseInt(userData.socios)-1} SOCIOS,` : 'EN CALIDAD DE TITULAR,'}
+                    CON DOMICILIO EN LIMA.</p>
+
+                    <p><strong>PRIMERO (CAPITAL):</strong><br>
+                    EL CAPITAL SOCIAL ES DE <strong>S/ ${userData.capital}</strong>.</p>
+
+                    <p><strong>SEGUNDO (OBJETO SOCIAL - GENERADO POR IA):</strong><br>
+                    LA SOCIEDAD TIENE POR OBJETO DEDICARSE A:<br>
+                    <em>${data.objeto_social}</em></p>
+
+                    <p><strong>TERCERO (RÉGIMEN):</strong><br>
+                    LA EMPRESA SE ACOGE AL <strong>${data.regimen.toUpperCase()}</strong>.</p>
+
+                    <br>
+                    <p style="text-align:right">Lima, ${fecha}</p>
+                    <div style="border-top:1px solid #000; width:200px; margin: 40px auto 0 auto; text-align:center; font-size:0.8rem; padding-top:5px;">
+                        Firma Digital Abogado (OrizonUp)
+                    </div>
+                </div>
+                <div style="margin-top:10px; text-align:center;">
+                    <button style="background:var(--accent); color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer;">
+                        <i class="fas fa-file-signature"></i> Enviar a Notaría
+                    </button>
+                </div>
+            `;
+            
+            addBotMessage("Aquí tienes el borrador de tu Minuta generado automáticamente. 👇");
+            
+            // Insertar HTML crudo en un mensaje especial
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message bot';
+            msgDiv.innerHTML = `
+                <div class="avatar">AI</div>
+                <div class="content" style="background:#eef; color:#333; width:100%; max-width:90%;">
+                    ${docHTML}
+                </div>
+            `;
+            chatContainer.appendChild(msgDiv);
+            scrollToBottom();
+        }
+
+        // UTILS UI
+        function addUserMessage(text) {
+            const div = document.createElement('div');
+            div.className = 'message user';
+            div.innerHTML = `<div class="content">${text}</div><div class="avatar">Tú</div>`;
+            chatContainer.appendChild(div);
+            scrollToBottom();
+        }
+
+        function addBotMessage(text) {
+            // Convertir **bold** a <b>bold</b> simple
+            const formatted = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+            
+            const div = document.createElement('div');
+            div.className = 'message bot';
+            div.innerHTML = `<div class="avatar">AI</div><div class="content">${formatted}</div>`;
+            chatContainer.appendChild(div);
+            scrollToBottom();
+        }
+
+        function showTyping() {
+            const div = document.createElement('div');
+            div.id = 'typing-indicator';
+            div.className = 'message bot';
+            div.innerHTML = `<div class="avatar">AI</div><div class="content typing-indicator">Escribiendo... <i class="fas fa-pen-nib"></i></div>`;
+            chatContainer.appendChild(div);
+            scrollToBottom();
+        }
+
+        function hideTyping() {
+            const el = document.getElementById('typing-indicator');
+            if (el) el.remove();
+        }
+
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+    </script>
+</body>
+</html>
