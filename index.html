@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORIZONUP - Prototipo IA</title>
+    <style>
+        /* ESTILOS (CSS) - Diseño limpio y moderno */
+        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f8fafc; --white: #ffffff; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--primary); margin: 0; padding: 20px; line-height: 1.6; }
+        
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        /* Header */
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { font-size: 2.5rem; margin-bottom: 10px; color: var(--primary); }
+        .badge { background: var(--accent); color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Tarjetas */
+        .card { background: var(--white); border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; transition: all 0.3s ease; }
+        
+        /* Formulario */
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
+        input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+
+        /* Botones */
+        .btn { width: 100%; background: var(--primary); color: white; padding: 15px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background 0.3s; }
+        .btn:hover { background: #1e293b; }
+        .btn-loading { background: #94a3b8; cursor: wait; }
+
+        /* Resultados y Documento */
+        .hidden { display: none; }
+        .result-box { background: #eff6ff; border-left: 5px solid var(--accent); padding: 20px; margin-top: 20px; }
+        
+        .paper {
+            background: #fff;
+            padding: 50px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            font-family: 'Times New Roman', serif;
+            color: #000;
+            margin-top: 20px;
+            white-space: pre-wrap; /* Mantiene formato de texto */
+        }
+        
+        .signature-line { margin-top: 60px; border-top: 1px solid #000; width: 250px; text-align: center; padding-top: 10px; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <span class="badge">MVP Prototipo</span>
+        <h1>ORIZONUP</h1>
+        <p>Formalización de empresas asistida por Inteligencia Artificial</p>
+    </header>
+
+    <!-- PASO 1: DIAGNÓSTICO -->
+    <div id="step-1" class="card">
+        <h2>1. Diagnóstico Empresarial</h2>
+        <p>Ingresa los datos reales de tu emprendimiento para que nuestra IA estructure tu empresa legalmente.</p>
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Nombre del Emprendedor</label>
+                <input type="text" id="nombreUsuario" placeholder="Ej. Carlos Mendez" value="Carlos Mendez">
+            </div>
+            <div class="form-group">
+                <label>Posible Nombre de la Empresa</label>
+                <input type="text" id="nombreEmpresa" placeholder="Ej. Bodega El Sol" value="Tecnología Verde">
+            </div>
+            <div class="form-group">
+                <label>Número de Socios (Incluyéndote)</label>
+                <input type="number" id="socios" value="2">
+            </div>
+            <div class="form-group">
+                <label>Capital Inicial (S/)</label>
+                <input type="number" id="capital" value="5000">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label>Describe tu negocio (¿Qué vendes? ¿A quién?)</label>
+            <input type="text" id="descripcion" placeholder="Ej. Venta de ropa para bebés online" value="Consultoría ambiental y venta de plantas purificadoras de aire para oficinas">
+        </div>
+
+        <button class="btn" id="btnAnalyze" onclick="analizarConIA()">ANALIZAR Y FORMALIZAR (IA)</button>
+        <p id="loadingMsg" style="text-align: center; display: none; color: var(--accent);">🔄 Consultando normativa legal peruana y generando estructura...</p>
+    </div>
+
+    <!-- PASO 2: RESULTADOS IA -->
+    <div id="step-2" class="card hidden">
+        <h2>2. Estrategia Legal Generada</h2>
+        <p>ORIZONUP ha analizado tu perfil y ha determinado la siguiente estructura óptima:</p>
+
+        <div class="form-grid">
+            <div class="result-box">
+                <strong>Tipo de Empresa Recomendado:</strong>
+                <h3 id="resTipoEmpresa" style="margin: 5px 0; color: var(--accent);">...</h3>
+            </div>
+            <div class="result-box">
+                <strong>Régimen Tributario Sugerido:</strong>
+                <h3 id="resRegimen" style="margin: 5px 0; color: var(--accent);">...</h3>
+            </div>
+        </div>
+
+        <div class="result-box" style="background: #ffffff; border: 1px solid #ddd; border-left: 5px solid #22c55e;">
+            <strong>Explicación Legal (IA):</strong>
+            <p id="resExplicacion">...</p>
+        </div>
+
+        <br>
+        <button class="btn" onclick="mostrarMinuta()">VER MINUTA DE CONSTITUCIÓN GENERADA</button>
+    </div>
+
+    <!-- PASO 3: MINUTA -->
+    <div id="step-3" class="card hidden">
+        <h2>3. Documentación Lista (Módulo 3)</h2>
+        <p>A continuación se muestra el borrador de la Minuta generado automáticamente con el Objeto Social redactado por la IA.</p>
+        
+        <div class="paper">
+MINUTA DE CONSTITUCIÓN DE EMPRESA
+
+SEÑOR NOTARIO:
+SÍRVASE EXTENDER EN SU REGISTRO DE ESCRITURAS PÚBLICAS, UNA DE CONSTITUCIÓN DE EMPRESA, QUE OTORGAN:
+
+<span id="docSocios"></span>
+
+BAJO LOS TÉRMINOS SIGUIENTES:
+
+PRIMERO (DENOMINACIÓN).- La sociedad se denominará: "<span id="docNombreEmpresa"></span> <span id="docSiglas"></span>".
+
+SEGUNDO (CAPITAL SOCIAL).- El capital de la sociedad es de S/ <span id="docCapital"></span>, dividido en participaciones sociales.
+
+TERCERO (OBJETO SOCIAL).- La sociedad tiene por objeto dedicarse a:
+<span id="docObjetoSocial" style="background: #eef; padding: 2px;">(Redacción IA...)</span>
+
+CUARTO (RÉGIMEN).- Se acogerá al régimen tributario: <span id="docRegimen"></span>.
+
+Lima, <span id="docFecha"></span>.
+
+<div class="signature-line">Firma Abogado (Validado ORIZONUP)</div>
+        </div>
+        
+        <br>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn" style="background: #22c55e;">ENVIAR A NOTARÍA (Simulado)</button>
+            <button class="btn" style="background: #64748b;" onclick="location.reload()">REINICIAR</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- SCRIPT (Lógica adaptada de tu Cloudflare Worker a Cliente Web) -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    // Configuración API
+    const API_KEY = 'AIzaSyD754-tFbw1yTXdv8pkIya3cEFxWed52oY'; // NOTA: Usando la Key de tu ejemplo.
+    const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + API_KEY;
+
+    let datosIA = null; // Para guardar la respuesta
+
+    async function analizarConIA() {
+        // 1. Obtener datos del formulario
+        const usuario = document.getElementById('nombreUsuario').value;
+        const nombreEmpresa = document.getElementById('nombreEmpresa').value;
+        const socios = document.getElementById('socios').value;
+        const capital = document.getElementById('capital').value;
+        const descripcion = document.getElementById('descripcion').value;
+
+        // UI: Mostrar carga
+        const btn = document.getElementById('btnAnalyze');
+        const loading = document.getElementById('loadingMsg');
+        btn.disabled = true;
+        btn.classList.add('btn-loading');
+        btn.innerText = "PROCESANDO CON IA...";
+        loading.style.display = 'block';
+
+        // 2. Preparar el Prompt (Ingeniería de Prompt para OrizonUp)
+        // Adaptado de tu lógica de Cloudflare para generar JSON
+        const promptText = `
+            Actúa como un abogado experto en derecho corporativo peruano para la plataforma ORIZONUP.
+            
+            Analiza el siguiente caso de emprendimiento:
+            - Descripción: ${descripcion}
+            - Número de socios: ${socios}
+            - Capital: ${capital} soles.
+
+            Reglas de negocio (Perú):
+            1. Si es 1 socio, sugerir "E.I.R.L.". Si son 2 a 20, sugerir "S.A.C.".
+            2. Si el capital es bajo (<3000) y es venta minorista, sugerir "Nuevo RUS". Si es B2B o consultoría, sugerir "MYPE Tributario".
+
+            Tarea: Genera un objeto JSON con 4 campos exactos (sin markdown):
+            {
+                "tipo_empresa": "El tipo de sociedad recomendado (EIRL o SAC)",
+                "regimen_tributario": "El régimen recomendado",
+                "explicacion": "Breve explicación legal de 2 líneas de por qué elegiste esto",
+                "objeto_social": "Redacta un párrafo formal y legal describiendo las actividades para poner en la Minuta (Objeto Social amplio)"
+            }
+        `;
+
+        const body = {
+            contents: [{
+                parts: [{ text: promptText }]
+            }]
+        };
+
+        try {
+            // 3. Hacer la petición (Simulando tu script de worker pero con Axios)
+            const response = await axios.post(API_URL, body, {
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            // 4. Procesar Respuesta
+            let rawText = response.data.candidates[0].content.parts[0].text;
+            
+            // Limpieza del texto (igual que en tu script) para obtener solo el JSON
+            let cleanedText = rawText.trim().replace(/```json|```/g, '').trim();
+            
+            datosIA = JSON.parse(cleanedText);
+
+            // 5. Mostrar Resultados en Pantalla (Paso 2)
+            document.getElementById('resTipoEmpresa').innerText = datosIA.tipo_empresa;
+            document.getElementById('resRegimen').innerText = datosIA.regimen_tributario;
+            document.getElementById('resExplicacion').innerText = datosIA.explicacion;
+
+            // Transición UI
+            document.getElementById('step-1').classList.add('hidden');
+            document.getElementById('step-2').classList.remove('hidden');
+
+        } catch (error) {
+            console.error(error);
+            alert("Error conectando con la IA. Verifica la consola o la API Key.");
+            btn.disabled = false;
+            btn.innerText = "INTENTAR DE NUEVO";
+            loading.style.display = 'none';
+        }
+    }
+
+    function mostrarMinuta() {
+        // Llenar datos de la minuta (Paso 3)
+        const usuario = document.getElementById('nombreUsuario').value;
+        const nombreEmpresa = document.getElementById('nombreEmpresa').value;
+        const socios = document.getElementById('socios').value;
+        const capital = document.getElementById('capital').value;
+        
+        // Fecha actual
+        const fecha = new Date().toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Lógica visual simple para socios
+        let textoSocios = `DON/DOÑA ${usuario.toUpperCase()}, PERUANO, CON DNI...`;
+        if (parseInt(socios) > 1) {
+            textoSocios += ` Y OTROS ${parseInt(socios) - 1} SOCIOS MÁS.`;
+        }
+
+        // Inyectar datos en el DOM
+        document.getElementById('docSocios').innerText = textoSocios;
+        document.getElementById('docNombreEmpresa').innerText = nombreEmpresa.toUpperCase();
+        
+        // Obtener siglas del tipo de empresa (ej: SAC)
+        let siglas = "S.A.C.";
+        if(datosIA.tipo_empresa.includes("EIRL") || datosIA.tipo_empresa.includes("Individual")) siglas = "E.I.R.L.";
+        document.getElementById('docSiglas').innerText = siglas;
+
+        document.getElementById('docCapital').innerText = capital;
+        document.getElementById('docRegimen').innerText = datosIA.regimen_tributario.toUpperCase();
+        document.getElementById('docFecha').innerText = fecha;
+        
+        // Aquí va la magia de la IA (El objeto social redactado)
+        document.getElementById('docObjetoSocial').innerText = datosIA.objeto_social;
+
+        // Mostrar paso 3
+        document.getElementById('step-2').classList.add('hidden');
+        document.getElementById('step-3').classList.remove('hidden');
+    }
+</script>
+
+</body>
+</html>
