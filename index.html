@@ -3,281 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ORIZONUP - Prototipo IA</title>
+    <title>ORIZONUP - Prototipo</title>
+    <!-- Tailwind CSS v4 CDN -->
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* ESTILOS (CSS) - Diseño limpio y moderno */
-        :root { --primary: #0f172a; --accent: #3b82f6; --bg: #f8fafc; --white: #ffffff; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--primary); margin: 0; padding: 20px; line-height: 1.6; }
-        
-        .container { max-width: 900px; margin: 0 auto; }
-        
-        /* Header */
-        header { text-align: center; margin-bottom: 40px; }
-        h1 { font-size: 2.5rem; margin-bottom: 10px; color: var(--primary); }
-        .badge { background: var(--accent); color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
-
-        /* Tarjetas */
-        .card { background: var(--white); border-radius: 12px; padding: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; transition: all 0.3s ease; }
-        
-        /* Formulario */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.9rem; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 1rem; box-sizing: border-box; }
-        input:focus { outline: 2px solid var(--accent); border-color: transparent; }
-
-        /* Botones */
-        .btn { width: 100%; background: var(--primary); color: white; padding: 15px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background 0.3s; }
-        .btn:hover { background: #1e293b; }
-        .btn-loading { background: #94a3b8; cursor: wait; }
-
-        /* Resultados y Documento */
-        .hidden { display: none; }
-        .result-box { background: #eff6ff; border-left: 5px solid var(--accent); padding: 20px; margin-top: 20px; }
-        
-        .paper {
-            background: #fff;
-            padding: 50px;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            font-family: 'Times New Roman', serif;
-            color: #000;
-            margin-top: 20px;
-            white-space: pre-wrap; /* Mantiene formato de texto */
-        }
-        
-        .signature-line { margin-top: 60px; border-top: 1px solid #000; width: 250px; text-align: center; padding-top: 10px; }
-
+        body { font-family: 'Inter', sans-serif; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-900 min-h-screen p-6">
 
-<div class="container">
-    <header>
-        <span class="badge">MVP Prototipo</span>
-        <h1>ORIZONUP</h1>
-        <p>Formalización de empresas asistida por Inteligencia Artificial</p>
-    </header>
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-10 fade-in">
+            <span class="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full tracking-wider uppercase">MVP Prototipo</span>
+            <h1 class="text-4xl font-extrabold text-slate-900 mt-4 mb-2">ORIZONUP</h1>
+            <p class="text-slate-500 text-lg">Formalización de empresas asistida por Inteligencia Artificial</p>
+        </header>
 
-    <!-- PASO 1: DIAGNÓSTICO -->
-    <div id="step-1" class="card">
-        <h2>1. Diagnóstico Empresarial</h2>
-        <p>Ingresa los datos reales de tu emprendimiento para que nuestra IA estructure tu empresa legalmente.</p>
-        
-        <div class="form-grid">
-            <div class="form-group">
-                <label>Nombre del Emprendedor</label>
-                <input type="text" id="nombreUsuario" placeholder="Ej. Carlos Mendez" value="Carlos Mendez">
-            </div>
-            <div class="form-group">
-                <label>Posible Nombre de la Empresa</label>
-                <input type="text" id="nombreEmpresa" placeholder="Ej. Bodega El Sol" value="Tecnología Verde">
-            </div>
-            <div class="form-group">
-                <label>Número de Socios (Incluyéndote)</label>
-                <input type="number" id="socios" value="2">
-            </div>
-            <div class="form-group">
-                <label>Capital Inicial (S/)</label>
-                <input type="number" id="capital" value="5000">
-            </div>
-        </div>
-        
-        <div class="form-group">
-            <label>Describe tu negocio (¿Qué vendes? ¿A quién?)</label>
-            <input type="text" id="descripcion" placeholder="Ej. Venta de ropa para bebés online" value="Consultoría ambiental y venta de plantas purificadoras de aire para oficinas">
-        </div>
+        <!-- PASO 1: FORMULARIO -->
+        <div id="step-1" class="bg-white rounded-2xl shadow-xl p-8 mb-6 fade-in border border-slate-100">
+            <h2 class="text-2xl font-bold mb-2 text-slate-800">1. Diagnóstico Empresarial</h2>
+            <p class="text-slate-500 mb-6">Ingresa los datos reales para estructurar legalmente tu empresa.</p>
 
-        <button class="btn" id="btnAnalyze" onclick="analizarConIA()">ANALIZAR Y FORMALIZAR (IA)</button>
-        <p id="loadingMsg" style="text-align: center; display: none; color: var(--accent);">🔄 Consultando normativa legal peruana y generando estructura...</p>
-    </div>
-
-    <!-- PASO 2: RESULTADOS IA -->
-    <div id="step-2" class="card hidden">
-        <h2>2. Estrategia Legal Generada</h2>
-        <p>ORIZONUP ha analizado tu perfil y ha determinado la siguiente estructura óptima:</p>
-
-        <div class="form-grid">
-            <div class="result-box">
-                <strong>Tipo de Empresa Recomendado:</strong>
-                <h3 id="resTipoEmpresa" style="margin: 5px 0; color: var(--accent);">...</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Tu Nombre Completo</label>
+                    <input type="text" id="nombreUsuario" value="Carlos Mendez" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Nombre de la Empresa</label>
+                    <input type="text" id="nombreEmpresa" value="Tecnología Verde" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Número de Socios</label>
+                    <input type="number" id="socios" value="2" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">Capital Inicial (S/)</label>
+                    <input type="number" id="capital" value="5000" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition">
+                </div>
             </div>
-            <div class="result-box">
-                <strong>Régimen Tributario Sugerido:</strong>
-                <h3 id="resRegimen" style="margin: 5px 0; color: var(--accent);">...</h3>
+
+            <div class="mb-8">
+                <label class="block text-sm font-semibold text-slate-700 mb-2">Descripción del Negocio</label>
+                <input type="text" id="descripcion" value="Consultoría ambiental y venta de filtros" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none transition" placeholder="¿Qué vendes y a quién?">
             </div>
+
+            <button id="btnAnalyze" onclick="procesarDatos()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-4 rounded-xl transition-all transform hover:scale-[1.01] shadow-lg cursor-pointer flex justify-center items-center">
+                <span>ANALIZAR CON IA</span>
+            </button>
+            <p id="loadingMsg" class="hidden text-center text-blue-600 mt-4 font-medium animate-pulse">
+                🔄 Conectando con OrizonUp Cloud...
+            </p>
+            <p id="errorMsg" class="hidden text-center text-red-500 mt-4 text-sm bg-red-50 p-3 rounded-lg border border-red-200"></p>
         </div>
 
-        <div class="result-box" style="background: #ffffff; border: 1px solid #ddd; border-left: 5px solid #22c55e;">
-            <strong>Explicación Legal (IA):</strong>
-            <p id="resExplicacion">...</p>
+        <!-- PASO 2: RESULTADOS -->
+        <div id="step-2" class="hidden fade-in">
+            <div class="bg-white rounded-2xl shadow-xl p-8 mb-6 border border-slate-100">
+                <h2 class="text-2xl font-bold mb-6 text-slate-800">2. Estrategia Legal Generada</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-lg">
+                        <p class="text-xs font-bold text-blue-500 uppercase mb-1">Tipo de Empresa</p>
+                        <h3 id="resTipoEmpresa" class="text-xl font-bold text-slate-900">...</h3>
+                    </div>
+                    <div class="bg-emerald-50 border-l-4 border-emerald-500 p-5 rounded-r-lg">
+                        <p class="text-xs font-bold text-emerald-600 uppercase mb-1">Régimen Tributario</p>
+                        <h3 id="resRegimen" class="text-xl font-bold text-slate-900">...</h3>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-5 rounded-xl border border-slate-200 mb-8">
+                    <strong class="block text-slate-700 mb-2">Análisis de la IA:</strong>
+                    <p id="resExplicacion" class="text-slate-600 leading-relaxed">...</p>
+                </div>
+
+                <button onclick="verMinuta()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition shadow-lg cursor-pointer">
+                    VER DOCUMENTO LEGAL
+                </button>
+            </div>
         </div>
 
-        <br>
-        <button class="btn" onclick="mostrarMinuta()">VER MINUTA DE CONSTITUCIÓN GENERADA</button>
-    </div>
+        <!-- PASO 3: DOCUMENTO -->
+        <div id="step-3" class="hidden fade-in">
+            <div class="bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">3. Minuta Generada</h2>
+                    <span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold">LISTO PARA NOTARÍA</span>
+                </div>
 
-    <!-- PASO 3: MINUTA -->
-    <div id="step-3" class="card hidden">
-        <h2>3. Documentación Lista (Módulo 3)</h2>
-        <p>A continuación se muestra el borrador de la Minuta generado automáticamente con el Objeto Social redactado por la IA.</p>
-        
-        <div class="paper">
+                <!-- Papel Documento -->
+                <div class="bg-white p-8 md:p-12 border border-slate-200 shadow-sm font-serif text-black leading-relaxed whitespace-pre-wrap text-sm md:text-base">
 MINUTA DE CONSTITUCIÓN DE EMPRESA
 
 SEÑOR NOTARIO:
 SÍRVASE EXTENDER EN SU REGISTRO DE ESCRITURAS PÚBLICAS, UNA DE CONSTITUCIÓN DE EMPRESA, QUE OTORGAN:
 
-<span id="docSocios"></span>
+<span id="docSocios" class="font-bold"></span>
 
 BAJO LOS TÉRMINOS SIGUIENTES:
 
-PRIMERO (DENOMINACIÓN).- La sociedad se denominará: "<span id="docNombreEmpresa"></span> <span id="docSiglas"></span>".
+PRIMERO (DENOMINACIÓN).- La sociedad se denominará: "<span id="docNombreEmpresa" class="font-bold"></span> <span id="docSiglas"></span>".
 
-SEGUNDO (CAPITAL SOCIAL).- El capital de la sociedad es de S/ <span id="docCapital"></span>, dividido en participaciones sociales.
+SEGUNDO (CAPITAL SOCIAL).- El capital de la sociedad es de S/ <span id="docCapital" class="font-bold"></span>.
 
 TERCERO (OBJETO SOCIAL).- La sociedad tiene por objeto dedicarse a:
-<span id="docObjetoSocial" style="background: #eef; padding: 2px;">(Redacción IA...)</span>
+<span id="docObjetoSocial" class="bg-yellow-50 px-1 py-0.5 border-b border-yellow-200">(Redacción IA...)</span>
 
-CUARTO (RÉGIMEN).- Se acogerá al régimen tributario: <span id="docRegimen"></span>.
+CUARTO (RÉGIMEN).- Se acogerá al régimen tributario: <span id="docRegimen" class="font-bold"></span>.
 
 Lima, <span id="docFecha"></span>.
 
-<div class="signature-line">Firma Abogado (Validado ORIZONUP)</div>
-        </div>
-        
-        <br>
-        <div style="display: flex; gap: 10px;">
-            <button class="btn" style="background: #22c55e;">ENVIAR A NOTARÍA (Simulado)</button>
-            <button class="btn" style="background: #64748b;" onclick="location.reload()">REINICIAR</button>
+<div class="mt-16 border-t border-black w-64 text-center pt-2 mx-auto">Firma Abogado (Validado ORIZONUP)</div>
+                </div>
+
+                <div class="flex gap-4 mt-8">
+                    <button class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg transition shadow">
+                        ENVIAR A NOTARÍA
+                    </button>
+                    <button onclick="location.reload()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-lg transition">
+                        REINICIAR
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
-</div>
+    <!-- LÓGICA FRONTEND -->
+    <script>
+        // ⚠️ REEMPLAZA ESTO CON LA URL DE TU WORKER DE CLOUDFLARE ⚠️
+        // Si no tienes worker desplegado, no funcionará.
+        const WORKER_URL = 'https://long-surf-1df4.frankwilsonknow.workers.dev'; 
+        
+        let datosIA = null;
 
-<!-- SCRIPT (Lógica adaptada de tu Cloudflare Worker a Cliente Web) -->
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-    // Configuración API
-    const API_KEY = 'AIzaSyAKU5PvvV0dzyrjT24BgS1OWJeIILGVBYM'; // NOTA: Usando la Key de tu ejemplo.
-    const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=' + API_KEY; 
-
-    let datosIA = null; // Para guardar la respuesta
-
-    async function analizarConIA() {
-        // 1. Obtener datos del formulario
-        const usuario = document.getElementById('nombreUsuario').value;
-        const nombreEmpresa = document.getElementById('nombreEmpresa').value;
-        const socios = document.getElementById('socios').value;
-        const capital = document.getElementById('capital').value;
-        const descripcion = document.getElementById('descripcion').value;
-
-        // UI: Mostrar carga
-        const btn = document.getElementById('btnAnalyze');
-        const loading = document.getElementById('loadingMsg');
-        btn.disabled = true;
-        btn.classList.add('btn-loading');
-        btn.innerText = "PROCESANDO CON IA...";
-        loading.style.display = 'block';
-
-        // 2. Preparar el Prompt (Ingeniería de Prompt para OrizonUp)
-        // Adaptado de tu lógica de Cloudflare para generar JSON
-        const promptText = `
-            Actúa como un abogado experto en derecho corporativo peruano para la plataforma ORIZONUP.
+        async function procesarDatos() {
+            // UI Loading
+            const btn = document.getElementById('btnAnalyze');
+            const loading = document.getElementById('loadingMsg');
+            const errorMsg = document.getElementById('errorMsg');
             
-            Analiza el siguiente caso de emprendimiento:
-            - Descripción: ${descripcion}
-            - Número de socios: ${socios}
-            - Capital: ${capital} soles.
+            btn.classList.add('hidden');
+            loading.classList.remove('hidden');
+            errorMsg.classList.add('hidden');
 
-            Reglas de negocio (Perú):
-            1. Si es 1 socio, sugerir "E.I.R.L.". Si son 2 a 20, sugerir "S.A.C.".
-            2. Si el capital es bajo (<3000) y es venta minorista, sugerir "Nuevo RUS". Si es B2B o consultoría, sugerir "MYPE Tributario".
+            // Recolectar datos
+            const payload = {
+                nombre: document.getElementById('nombreUsuario').value,
+                empresa: document.getElementById('nombreEmpresa').value,
+                socios: document.getElementById('socios').value,
+                capital: document.getElementById('capital').value,
+                descripcion: document.getElementById('descripcion').value
+            };
 
-            Tarea: Genera un objeto JSON con 4 campos exactos (sin markdown):
-            {
-                "tipo_empresa": "El tipo de sociedad recomendado (EIRL o SAC)",
-                "regimen_tributario": "El régimen recomendado",
-                "explicacion": "Breve explicación legal de 2 líneas de por qué elegiste esto",
-                "objeto_social": "Redacta un párrafo formal y legal describiendo las actividades para poner en la Minuta (Objeto Social amplio)"
+            try {
+                // Petición al Backend (Worker)
+                const response = await fetch(WORKER_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) throw new Error(data.error || 'Error en el servidor');
+
+                datosIA = data; // Guardar respuesta
+                mostrarResultados();
+
+            } catch (error) {
+                console.error(error);
+                errorMsg.innerText = `Error: ${error.message}. Verifica que el Worker esté activo y la URL sea correcta.`;
+                errorMsg.classList.remove('hidden');
+                btn.classList.remove('hidden');
+            } finally {
+                loading.classList.add('hidden');
             }
-        `;
+        }
 
-        const body = {
-            contents: [{
-                parts: [{ text: promptText }]
-            }]
-        };
-
-        try {
-            // 3. Hacer la petición (Simulando tu script de worker pero con Axios)
-            const response = await axios.post(API_URL, body, {
-                headers: { 'Content-Type': 'application/json' }
-            });
-
-            // 4. Procesar Respuesta
-            let rawText = response.data.candidates[0].content.parts[0].text;
-            
-            // Limpieza del texto (igual que en tu script) para obtener solo el JSON
-            let cleanedText = rawText.trim().replace(/```json|```/g, '').trim();
-            
-            datosIA = JSON.parse(cleanedText);
-
-            // 5. Mostrar Resultados en Pantalla (Paso 2)
+        function mostrarResultados() {
             document.getElementById('resTipoEmpresa').innerText = datosIA.tipo_empresa;
             document.getElementById('resRegimen').innerText = datosIA.regimen_tributario;
             document.getElementById('resExplicacion').innerText = datosIA.explicacion;
 
-            // Transición UI
             document.getElementById('step-1').classList.add('hidden');
             document.getElementById('step-2').classList.remove('hidden');
-
-        } catch (error) {
-            console.error(error);
-            alert("Error conectando con la IA. Verifica la consola o la API Key.");
-            btn.disabled = false;
-            btn.innerText = "INTENTAR DE NUEVO";
-            loading.style.display = 'none';
-        }
-    }
-
-    function mostrarMinuta() {
-        // Llenar datos de la minuta (Paso 3)
-        const usuario = document.getElementById('nombreUsuario').value;
-        const nombreEmpresa = document.getElementById('nombreEmpresa').value;
-        const socios = document.getElementById('socios').value;
-        const capital = document.getElementById('capital').value;
-        
-        // Fecha actual
-        const fecha = new Date().toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' });
-
-        // Lógica visual simple para socios
-        let textoSocios = `DON/DOÑA ${usuario.toUpperCase()}, PERUANO, CON DNI...`;
-        if (parseInt(socios) > 1) {
-            textoSocios += ` Y OTROS ${parseInt(socios) - 1} SOCIOS MÁS.`;
         }
 
-        // Inyectar datos en el DOM
-        document.getElementById('docSocios').innerText = textoSocios;
-        document.getElementById('docNombreEmpresa').innerText = nombreEmpresa.toUpperCase();
-        
-        // Obtener siglas del tipo de empresa (ej: SAC)
-        let siglas = "S.A.C.";
-        if(datosIA.tipo_empresa.includes("EIRL") || datosIA.tipo_empresa.includes("Individual")) siglas = "E.I.R.L.";
-        document.getElementById('docSiglas').innerText = siglas;
+        function verMinuta() {
+            // Llenar datos en la plantilla
+            const usuario = document.getElementById('nombreUsuario').value;
+            const sociosNum = parseInt(document.getElementById('socios').value);
+            const fecha = new Date().toLocaleDateString('es-PE', { year: 'numeric', month: 'long', day: 'numeric' });
 
-        document.getElementById('docCapital').innerText = capital;
-        document.getElementById('docRegimen').innerText = datosIA.regimen_tributario.toUpperCase();
-        document.getElementById('docFecha').innerText = fecha;
-        
-        // Aquí va la magia de la IA (El objeto social redactado)
-        document.getElementById('docObjetoSocial').innerText = datosIA.objeto_social;
+            let textoSocios = `DON/DOÑA ${usuario.toUpperCase()}, PERUANO, CON DNI...`;
+            if (sociosNum > 1) textoSocios += ` Y OTROS ${sociosNum - 1} SOCIOS MÁS.`;
 
-        // Mostrar paso 3
-        document.getElementById('step-2').classList.add('hidden');
-        document.getElementById('step-3').classList.remove('hidden');
-    }
-</script>
+            let siglas = datosIA.tipo_empresa.includes("EIRL") ? "E.I.R.L." : "S.A.C.";
 
+            document.getElementById('docSocios').innerText = textoSocios;
+            document.getElementById('docNombreEmpresa').innerText = document.getElementById('nombreEmpresa').value.toUpperCase();
+            document.getElementById('docSiglas').innerText = siglas;
+            document.getElementById('docCapital').innerText = document.getElementById('capital').value;
+            document.getElementById('docRegimen').innerText = datosIA.regimen_tributario.toUpperCase();
+            document.getElementById('docObjetoSocial').innerText = datosIA.objeto_social;
+            document.getElementById('docFecha').innerText = fecha;
+
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-3').classList.remove('hidden');
+        }
+    </script>
 </body>
 </html>
